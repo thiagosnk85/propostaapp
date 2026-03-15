@@ -833,7 +833,8 @@ select option { background: var(--surface); }
     margin-top: 16px;
   }
 }
-@media (max-width: 640px) {
+
+@media (max-width: 768px) {
   .app {
     flex-direction: column;
   }
@@ -843,32 +844,58 @@ select option { background: var(--surface); }
     min-height: auto;
     height: auto;
     position: static;
-    padding: 14px 12px;
+    padding: 12px;
     border-right: none;
     border-bottom: 1px solid var(--border);
     overflow: visible;
+    gap: 10px;
   }
   .logo,
   .brand-logo {
-    margin-bottom: 12px;
-    justify-content: center;
+    margin-bottom: 0;
+    justify-content: flex-start;
   }
   .sidebar .brand-image {
-    max-width: 140px;
+    max-width: 132px;
   }
   .nav-section {
-    margin: 12px 0 6px;
-    padding: 0 2px;
+    display: none;
+  }
+  .sidebar .nav-item {
+    margin-bottom: 0;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  .sidebar > .nav-item,
+  .sidebar > #nav-equipe {
+    display: inline-flex;
+  }
+  .sidebar {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sidebar::-webkit-scrollbar {
+    display: none;
   }
   .nav-item {
     padding: 12px 10px;
     border-radius: 10px;
   }
   .sidebar-bottom {
-    margin-top: 14px;
+    margin-top: 0;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
   }
   .main {
     padding: 16px 14px 24px;
+  }
+  .page-header > .btn,
+  .page-header > div + .btn {
+    width: 100%;
+    justify-content: center;
   }
   .page-title {
     font-size: 22px;
@@ -885,6 +912,14 @@ select option { background: var(--surface); }
   }
   .filter-group {
     flex-direction: column;
+  }
+  .flex.gap-2 {
+    flex-direction: column;
+  }
+  .card,
+  .stat-card,
+  .auth-card {
+    padding: 18px 16px;
   }
   .stepper {
     gap: 8px;
@@ -927,11 +962,15 @@ select option { background: var(--surface); }
   .profile-upload-fields {
     width: 100%;
   }
-  .theme-toggle {
-    margin-top: 4px;
-  }
+  .theme-toggle,
+  .omie-status,
+  .sidebar-bottom .btn,
   .user-info {
-    width: 100%;
+    display: none;
+  }
+  .auth-card {
+    width: calc(100% - 24px);
+    max-width: none;
   }
   .modal {
     width: calc(100% - 20px);
@@ -952,5 +991,25 @@ select option { background: var(--surface); }
   }
   #pdf-doc.pdf-document {
     max-width: calc(100vw - 16px);
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar {
+    padding: 10px;
+  }
+  .sidebar .brand-image {
+    max-width: 118px;
+  }
+  .nav-item {
+    font-size: 13px;
+    padding: 10px 9px;
+  }
+  .prop-client {
+    white-space: normal;
+  }
+  .prop-actions .btn {
+    flex: 1 1 calc(50% - 8px);
+    justify-content: center;
   }
 }
