@@ -124,6 +124,7 @@ async function load(){
   p._items = itens.filter(i => i.tipo === 'item');
   p._alts = itens.filter(i => i.tipo === 'alternativa');
   _proposal = p;
+  const mult = Number(p.bdi_mult || 1);
 
   const sd = document.getElementById('status-display');
   if(p.status === 'aprovada'){
@@ -140,7 +141,18 @@ async function load(){
       <button class="btn btn-cancel" onclick="document.getElementById('modal-cancel').classList.add('open')">Recusar</button>`;
   }
 
-  const renderRows = (rows) => rows.map((it, i) => `<tr><td>${i+1}</td><td class="item-tag">${escHtml(it.tag || '-')}</td><td class="item-desc">${escHtml(it.descricao || '-')}</td><td style="text-align:center">${Number(it.quantidade || 0)}</td><td style="text-align:right">${fmtBRL(it.preco_unit || 0)}</td><td style="text-align:right;font-weight:600">${fmtBRL((it.quantidade || 0) * (it.preco_unit || 0))}</td></tr>`).join('');
+  const calcLine = (it) => {
+    const qtd = Number(it.quantidade || 0);
+    const unit = Number(it.preco_unit || 0) * mult;
+    return { qtd, unit, total: qtd * unit };
+  };
+  const totalItems = p._items.reduce((s, it) => s + calcLine(it).total, 0);
+  const totalAlts = p._alts.reduce((s, it) => s + calcLine(it).total, 0);
+  const grandTotal = totalItems + totalAlts;
+  const renderRows = (rows) => rows.map((it, i) => {
+    const line = calcLine(it);
+    return `<tr><td>${i+1}</td><td class="item-tag">${escHtml(it.tag || '-')}</td><td class="item-desc">${escHtml(it.descricao || '-')}</td><td style="text-align:center">${line.qtd}</td><td style="text-align:right">${fmtBRL(line.unit)}</td><td style="text-align:right;font-weight:600">${fmtBRL(line.total)}</td></tr>`;
+  }).join('');
 
   document.getElementById('proposal-content').innerHTML = `
   <div class="pdf-document">
@@ -167,8 +179,9 @@ async function load(){
           ${p.email ? `<div><div class="pdf-ci-label">E-mail</div><div class="pdf-ci-value">${escHtml(p.email)}</div></div>` : ''}
         </div>
       </div>
-      ${p._items.length ? `<div class="pdf-section"><div class="pdf-section-title">Escopo e Precos</div><table class="pdf-table"><thead><tr><th>#</th><th>Tag/Modelo</th><th>Descricao</th><th style="text-align:center">Qtd</th><th style="text-align:right">Unit.</th><th style="text-align:right">Total</th></tr></thead><tbody>${renderRows(p._items)}</tbody></table><div class="pdf-total-row"><div class="pdf-total-box"><div><div class="pdf-total-label">Valor Total</div><div class="pdf-total-value">${fmtBRL(p.total || 0)}</div></div></div></div></div>` : ''}
-      ${p._alts.length ? `<div class="pdf-section"><div class="pdf-section-title">Alternativas</div><table class="pdf-table"><thead><tr><th>#</th><th>Tag/Modelo</th><th>Descricao</th><th style="text-align:center">Qtd</th><th style="text-align:right">Unit.</th><th style="text-align:right">Total</th></tr></thead><tbody>${renderRows(p._alts)}</tbody></table></div>` : ''}
+      ${p._items.length ? `<div class="pdf-section"><div class="pdf-section-title">Escopo e Precos</div><table class="pdf-table"><thead><tr><th>#</th><th>Tag/Modelo</th><th>Descricao</th><th style="text-align:center">Qtd</th><th style="text-align:right">Unit.</th><th style="text-align:right">Total</th></tr></thead><tbody>${renderRows(p._items)}</tbody></table></div>` : ''}
+      ${p._alts.length ? `<div class="pdf-section"><div class="pdf-section-title">Acessorios</div><table class="pdf-table"><thead><tr><th>#</th><th>Tag/Modelo</th><th>Descricao</th><th style="text-align:center">Qtd</th><th style="text-align:right">Unit.</th><th style="text-align:right">Total</th></tr></thead><tbody>${renderRows(p._alts)}</tbody></table><div class="pdf-total-row"><div class="pdf-total-box"><div><div class="pdf-total-label">Valor Total Geral</div><div class="pdf-total-value">${fmtBRL(grandTotal)}</div></div></div></div></div>` : ''}
+      ${p._items.length && !p._alts.length ? `<div class="pdf-section"><div class="pdf-total-row"><div class="pdf-total-box"><div><div class="pdf-total-label">Valor Total Geral</div><div class="pdf-total-value">${fmtBRL(grandTotal)}</div></div></div></div></div>` : ''}
       <div class="pdf-section">
         <div class="pdf-section-title">Condicoes Comerciais</div>
         <div class="pdf-conditions">

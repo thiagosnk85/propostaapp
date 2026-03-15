@@ -41,22 +41,34 @@ const PDF = {
     const co = Config._company || {};
     const items = p._items || [];
     const alts = p._alts || [];
-    const total = p.total || items.reduce((s, it) => s + (it.quantidade || it.qtd || 1) * (it.preco_unit || it.unit || 0), 0) * (p.bdi_mult || 1);
+    const mult = Number(p.bdi_mult || 1);
+    const calcLine = (it) => {
+      const qtd = Number(it.quantidade || it.qtd || 1);
+      const baseUnit = Number(it.preco_unit || it.unit || 0);
+      const unit = baseUnit * mult;
+      return { qtd, unit, total: qtd * unit };
+    };
+    const totalItems = items.reduce((s, it) => s + calcLine(it).total, 0);
+    const totalAlts = alts.reduce((s, it) => s + calcLine(it).total, 0);
+    const grandTotal = totalItems + totalAlts;
     const publicLink = p.id
       ? `${APP_URL}/proposta.html?${p.public_token
           ? `id=${encodeURIComponent(p.id)}&token=${encodeURIComponent(p.public_token)}`
           : `id=${encodeURIComponent(p.id)}`}`
       : '';
 
-    const renderRows = (rows) => rows.map((it, i) => `
+    const renderRows = (rows) => rows.map((it, i) => {
+      const line = calcLine(it);
+      return `
       <tr>
         <td>${i + 1}</td>
         <td class="item-tag">${escHtml(it.tag || '-')}</td>
         <td class="item-desc">${escHtml(it.descricao || it.desc || '-')}</td>
-        <td style="text-align:center">${Number(it.quantidade || it.qtd || 1)}</td>
-        <td style="text-align:right">${fmtBRL(it.preco_unit || it.unit || 0)}</td>
-        <td style="text-align:right;font-weight:600">${fmtBRL((it.quantidade || it.qtd || 1) * (it.preco_unit || it.unit || 0))}</td>
-      </tr>`).join('');
+        <td style="text-align:center">${line.qtd}</td>
+        <td style="text-align:right">${fmtBRL(line.unit)}</td>
+        <td style="text-align:right;font-weight:600">${fmtBRL(line.total)}</td>
+      </tr>`;
+    }).join('');
 
     document.getElementById('pdf-doc').innerHTML = `
     <div class="pdf-header">
@@ -107,17 +119,19 @@ const PDF = {
           <thead><tr><th style="width:36px">#</th><th>Tag / Modelo</th><th>Descricao</th><th style="width:44px;text-align:center">Qtd</th><th style="width:110px;text-align:right">Unit.</th><th style="width:120px;text-align:right">Total</th></tr></thead>
           <tbody>${renderRows(items)}</tbody>
         </table>
-        <div class="pdf-total-row"><div class="pdf-total-box"><div><div class="pdf-total-label">Valor Total</div><div class="pdf-total-value">${fmtBRL(total)}</div></div></div></div>
       </div>` : ''}
 
       ${alts.length ? `
       <div class="pdf-section">
-        <div class="pdf-alt-badge">Alternativas Propostas Opcionalmente</div>
+        <div class="pdf-alt-badge">Acessorios</div>
         <table class="pdf-table">
           <thead><tr><th>#</th><th>Tag / Modelo</th><th>Descricao</th><th style="text-align:center">Qtd</th><th style="text-align:right">Unit.</th><th style="text-align:right">Total</th></tr></thead>
           <tbody>${renderRows(alts)}</tbody>
         </table>
+        <div class="pdf-total-row"><div class="pdf-total-box"><div><div class="pdf-total-label">Valor Total Geral</div><div class="pdf-total-value">${fmtBRL(grandTotal)}</div></div></div></div>
       </div>` : ''}
+
+      ${items.length && !alts.length ? `<div class="pdf-section"><div class="pdf-total-row"><div class="pdf-total-box"><div><div class="pdf-total-label">Valor Total Geral</div><div class="pdf-total-value">${fmtBRL(grandTotal)}</div></div></div></div></div>` : ''}
 
       <div class="pdf-section">
         <div class="pdf-section-title">Condicoes Comerciais</div>

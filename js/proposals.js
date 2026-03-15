@@ -173,7 +173,9 @@ const Proposals = {
   getData() {
     const g = (id) => document.getElementById(id)?.value?.trim() || '';
     const bdiV = BDI.currentMult();
-    const sub = Items.list.reduce((s, it) => s + it.quantidade * it.preco_unit, 0);
+    const subMain = Items.list.reduce((s, it) => s + it.quantidade * it.preco_unit, 0);
+    const subAlts = Items.alts.reduce((s, it) => s + it.quantidade * it.preco_unit, 0);
+    const sub = subMain + subAlts;
     return {
       prop_number: g('f-prop'),
       n_controle: g('f-ncontrole'),

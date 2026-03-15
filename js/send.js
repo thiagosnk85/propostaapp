@@ -59,7 +59,7 @@ ${comp}`
     const comp = Config._company?.nome || 'SOMAX';
     const total = p.total
       ? fmtBRL(p.total)
-      : fmtBRL(Items.list.reduce((s, i) => s + i.quantidade * i.preco_unit, 0) * BDI.currentMult());
+      : fmtBRL((Items.list.reduce((s, i) => s + i.quantidade * i.preco_unit, 0) + Items.alts.reduce((s, i) => s + i.quantidade * i.preco_unit, 0)) * BDI.currentMult());
     const id = p.id || Proposals._editId || '';
     const links = id ? this.getPublicLinks(id) : null;
 

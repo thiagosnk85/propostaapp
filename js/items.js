@@ -4,7 +4,7 @@
 
 const Items = {
   list: [],    // itens principais
-  alts: [],    // alternativas
+  alts: [],    // acessorios
 
   reset() { this.list = []; this.alts = []; this.render(); },
 
@@ -63,7 +63,9 @@ const Items = {
   },
 
   calcTotals() {
-    const sub   = this.list.reduce((s, it) => s + it.quantidade * it.preco_unit, 0);
+    const subMain = this.list.reduce((s, it) => s + it.quantidade * it.preco_unit, 0);
+    const subAlts = this.alts.reduce((s, it) => s + it.quantidade * it.preco_unit, 0);
+    const sub = subMain + subAlts;
     const bdiV  = BDI.currentMult();
     const total = sub * bdiV;
     const el = id => document.getElementById(id);
