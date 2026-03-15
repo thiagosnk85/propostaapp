@@ -1,0 +1,120 @@
+/* ════════════════════════════════════════════
+   SOMAX · pdf.css  (layout do documento PDF)
+════════════════════════════════════════════ */
+
+.pdf-document {
+  width: 794px;
+  max-width: calc(100vw - 40px);
+  height: auto;
+  background: #fff;
+  color: #1a1a2e;
+  font-family: 'Poppins', sans-serif;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.5);
+}
+
+/* ── HEADER ──────────────────────────────── */
+.pdf-header {
+  background: #ffffff;
+  color: #fff;
+  padding: 22px 36px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #d8e1e4;
+  height: auto;
+  min-height: 0;
+}
+.pdf-logo-image { display: block; width: 150px; max-width: 100%; height: auto; }
+.pdf-logo-details { margin-top: 10px; font-size: 10px; color: #66747b; line-height: 1.5; }
+
+.pdf-prop-info    { text-align: right; }
+.pdf-prop-label   { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #66747b; margin-bottom: 3px; }
+.pdf-prop-num     { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; color: #2f3f86; }
+.pdf-prop-meta    { font-size: 10px; color: #66747b; margin-top: 2px; line-height: 1.5; }
+
+.pdf-accent-bar   { height: 3px; margin-top: -6px; background: linear-gradient(90deg, #0a8b5b, #2f3f86, transparent); }
+
+/* ── BODY ────────────────────────────────── */
+.pdf-body { padding: 34px 48px 28px; }
+
+.pdf-section          { margin-bottom: 26px; }
+.pdf-section-title    {
+  font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px; color: #0a8b5b;
+  border-bottom: 1px solid #e8e8f0; padding-bottom: 7px; margin-bottom: 14px;
+}
+
+/* Client grid */
+.pdf-client-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 28px; }
+.pdf-ci-label    { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 2px; }
+.pdf-ci-value    { font-size: 13px; color: #1a1a2e; font-weight: 500; }
+
+/* Intro */
+.pdf-intro { font-size: 13px; line-height: 1.7; color: #444; }
+
+/* Items table */
+.pdf-table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+.pdf-table th {
+  background: #2f3f86; color: #ffffff;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+  padding: 9px 12px; text-align: left;
+}
+.pdf-table th:last-child, .pdf-table td:last-child { text-align: right; }
+.pdf-table td { padding: 9px 12px; font-size: 12px; border-bottom: 1px solid #f0f0f8; }
+.pdf-table tr:nth-child(even) td { background: #f9f9fc; }
+.pdf-table .item-tag   { font-weight: 600; color: #0d0d1a; }
+.pdf-table .item-desc  { color: #666; font-size: 11px; }
+
+/* Total box */
+.pdf-total-row { display: flex; justify-content: flex-end; margin-top: 14px; }
+.pdf-total-box {
+  background: #ffffff; color: #111418;
+  padding: 14px 22px; border-radius: 8px;
+  display: flex; align-items: center; gap: 20px;
+  border: 2px solid #0a8b5b;
+  box-shadow: 0 6px 18px rgba(10,139,91,0.08);
+}
+.pdf-total-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #5b6e73; }
+.pdf-total-value { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 700; color: #21b17a; }
+
+/* Conditions */
+.pdf-conditions  { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 28px; }
+.pdf-cond-item   { border-left: 2px solid #0a8b5b; padding-left: 10px; }
+.pdf-cond-label  { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 2px; }
+.pdf-cond-value  { font-size: 12px; color: #1a1a2e; line-height: 1.5; }
+
+/* Obs */
+.pdf-obs-box {
+  background: #f9f9fc; border-radius: 8px;
+  padding: 14px 16px; font-size: 12px; color: #555; line-height: 1.6;
+}
+
+/* Alt badge */
+.pdf-alt-badge {
+  display: inline-block; background: rgba(47,63,134,0.12); color: #2f3f86;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  padding: 3px 8px; border-radius: 4px; margin-bottom: 8px; font-weight: 700;
+}
+
+/* Signature */
+.pdf-sign-section {
+  margin-top: 36px; display: flex;
+  justify-content: space-between; align-items: flex-end; padding-top: 16px;
+}
+.pdf-date-text { font-size: 12px; color: #888; }
+.pdf-sign-block { text-align: center; }
+.pdf-sign-line  { width: 180px; height: 1px; background: #ccc; margin: 0 auto 6px; }
+.pdf-sign-name  { font-size: 11px; color: #444; font-weight: 600; }
+.pdf-sign-role  { font-size: 10px; color: #888; }
+
+/* ── FOOTER ──────────────────────────────── */
+.pdf-footer {
+  background: #f5f8f9; padding: 18px 48px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 2px solid #d8e1e4; margin-top: 18px;
+}
+.pdf-footer-left  { font-size: 10px; color: #66747b; line-height: 1.7; }
+.pdf-footer-left strong { color: #0a8b5b; }
+.pdf-footer-right { font-size: 10px; color: #66747b; text-align: right; line-height: 1.7; }

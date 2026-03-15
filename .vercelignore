@@ -1,0 +1,6 @@
+README.md
+*.sql
+*.rtf
+~$*
+~WRL*
+{css,js,pages}

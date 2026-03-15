@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOMAX · Propostas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/pdf.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════════════════ -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <img src="img/logo.png" alt="SOMAX Ambiental e Acustica" class="brand-image">
+    </div>
+
+    <!-- Login -->
+    <div id="auth-login" class="auth-form">
+      <h2 class="auth-title">Entrar</h2>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="Auth.login()">Entrar</button>
+      <p class="auth-switch">Não tem conta? <a href="#" onclick="Auth.showRegister()">Cadastrar</a></p>
+      <p class="auth-switch"><a href="#" onclick="Auth.showForgot()">Esqueci minha senha</a></p>
+    </div>
+
+    <!-- Register -->
+    <div id="auth-register" class="auth-form" style="display:none">
+      <h2 class="auth-title">Criar Conta</h2>
+      <div class="form-group">
+        <label>Nome completo</label>
+        <input type="text" id="reg-name" placeholder="Seu nome">
+      </div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="reg-email" placeholder="seu@email.com">
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="Auth.register()">Criar Conta</button>
+      <p class="auth-switch">Já tem conta? <a href="#" onclick="Auth.showLogin()">Entrar</a></p>
+    </div>
+
+    <!-- Forgot -->
+    <div id="auth-forgot" class="auth-form" style="display:none">
+      <h2 class="auth-title">Recuperar Senha</h2>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="forgot-email" placeholder="seu@email.com">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="Auth.forgot()">Enviar Link</button>
+      <p class="auth-switch"><a href="#" onclick="Auth.showLogin()">← Voltar ao login</a></p>
+    </div>
+
+    <div id="auth-error" class="auth-error" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     APP (shown after login)
+════════════════════════════════════════════ -->
+<div id="app" class="app" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo brand-logo">
+      <img src="img/logo.png" alt="SOMAX Ambiental e Acustica" class="brand-image">
+    </div>
+
+    <div class="nav-section">Menu</div>
+    <div class="nav-item active" data-page="propostas" onclick="UI.showPage('propostas')">
+      <span class="icon">📋</span> Propostas
+    </div>
+    <div class="nav-item" data-page="nova" onclick="UI.showPage('nova')">
+      <span class="icon">✦</span> Nova Proposta
+    </div>
+    <div class="nav-item" data-page="bdi" onclick="UI.showPage('bdi')">
+      <span class="icon">⚙</span> BDI / Multiplicador
+    </div>
+    <div class="nav-item" data-page="templates" onclick="UI.showPage('templates')">
+      <span class="icon">📄</span> Templates
+    </div>
+
+    <div class="nav-item" data-page="usuarios" onclick="UI.showPage('usuarios')">
+      <span class="icon">&#128101;</span> Usuários
+    </div>
+    <div class="nav-item" data-page="perfil" onclick="UI.showPage('perfil')">
+      <span class="icon">&#128100;</span> Meu Perfil
+    </div>
+
+    <div class="nav-section">Sistema</div>
+    <div class="nav-item" data-page="config" onclick="UI.showPage('config')">
+      <span class="icon">🔗</span> Omie Config
+    </div>
+    <div class="nav-item" data-page="equipe" onclick="UI.showPage('equipe')" id="nav-equipe" style="display:none">
+      <span class="icon">👥</span> Equipe
+    </div>
+
+    <div class="nav-section">Aparência</div>
+    <button class="theme-toggle" id="theme-toggle" onclick="UI.toggleTheme()" aria-label="Alternar tema">
+      <span class="theme-switch" id="theme-switch" aria-hidden="true">
+        <span class="theme-switch-knob"></span>
+        <span class="theme-switch-icon theme-switch-moon">☾</span>
+        <span class="theme-switch-icon theme-switch-sun">☼</span>
+      </span>
+      <span>
+        <strong id="theme-toggle-label">Modo escuro</strong>
+        <small id="theme-toggle-sub">Voltar ao visual noturno</small>
+      </span>
+    </button>
+
+    <div class="sidebar-bottom">
+      <div class="user-info" id="sidebar-user">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-details">
+          <div class="user-name" id="user-name">...</div>
+          <div class="user-role" id="user-role">...</div>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm btn-full mt-2" onclick="Auth.logout()">Sair</button>
+      <div class="omie-status mt-2">
+        <span class="dot" id="omie-dot"></span>
+        <span id="omie-status-text">Omie: verificando...</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ══ PROPOSTAS ══ -->
+    <div id="page-propostas" class="page active">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Propostas Comerciais</div>
+          <div class="page-subtitle">Gerencie e acompanhe todas as propostas</div>
+        </div>
+        <button class="btn btn-primary" onclick="UI.showPage('nova')">✦ Nova Proposta</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total este mês</div><div class="stat-value" id="stat-total">—</div></div>
+        <div class="stat-card"><div class="stat-label">Valor em aberto</div><div class="stat-value accent" id="stat-value">—</div></div>
+        <div class="stat-card"><div class="stat-label">Aprovadas</div><div class="stat-value green" id="stat-aprovadas">—</div><div class="text-muted mt-1" id="stat-aprovadas-valor">—</div></div>
+        <div class="stat-card"><div class="stat-label">Taxa de aprovação</div><div class="stat-value" id="stat-taxa">—</div></div>
+      </div>
+
+      <!-- Search & filters -->
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="🔍  Buscar por cliente, número ou valor..." oninput="Proposals.search(this.value)">
+        <div class="filter-group">
+          <select id="filter-status" onchange="Proposals.search()">
+            <option value="">Todos os status</option>
+            <option value="pendente">Pendente</option>
+            <option value="enviada">Enviada</option>
+            <option value="aprovada">Aprovada</option>
+            <option value="cancelada">Cancelada</option>
+            <option value="perdida">Perdida</option>
+          </select>
+          <select id="filter-user" onchange="Proposals.search()">
+            <option value="">Todos os usuários</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="proposals-list"><div class="empty-state"><div class="empty-icon">📋</div><div>Carregando propostas...</div></div></div>
+      <div id="proposals-pagination" class="pagination"></div>
+    </div>
+
+    <!-- ══ NOVA / EDITAR PROPOSTA ══ -->
+    <div id="page-nova" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title" id="form-title">Nova Proposta</div>
+          <div class="page-subtitle">Preencha os dados para gerar a proposta</div>
+        </div>
+        <button class="btn btn-outline" onclick="UI.showPage('propostas')">← Voltar</button>
+      </div>
+
+      <div class="stepper" id="stepper">
+        <div class="step active" id="step-1" onclick="UI.goStep(1)"><div class="step-num">1</div><div class="step-label">Cliente</div></div>
+        <div class="step" id="step-2" onclick="UI.goStep(2)"><div class="step-num">2</div><div class="step-label">Itens</div></div>
+        <div class="step" id="step-3" onclick="UI.goStep(3)"><div class="step-num">3</div><div class="step-label">Condições</div></div>
+        <div class="step" id="step-4" onclick="UI.goStep(4)"><div class="step-num">4</div><div class="step-label">Revisão</div></div>
+      </div>
+
+      <!-- Step 1 -->
+      <div id="step-panel-1" class="step-panel">
+        <div class="card">
+          <div class="card-title">🔍 Buscar no Omie</div>
+          <div class="flex gap-2">
+            <input type="text" id="omie-search" placeholder="Buscar cliente por nome ou CNPJ...">
+            <button class="btn btn-primary" onclick="Omie.search()">Buscar</button>
+          </div>
+          <div id="omie-results" class="mt-2"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Dados do Cliente</div>
+          <div class="form-grid">
+            <div class="form-group full"><label>Razão Social *</label><input type="text" id="f-cliente" placeholder="Nome do cliente"></div>
+            <div class="form-group"><label>Atenção (Contato)</label><input type="text" id="f-attn" placeholder="Nome do contato"></div>
+            <div class="form-group"><label>CNPJ / CPF</label><input type="text" id="f-cnpj" placeholder="00.000.000/0000-00"></div>
+            <div class="form-group full"><label>Endereço</label><input type="text" id="f-endereco" placeholder="Endereço completo"></div>
+            <div class="form-group"><label>Telefone</label><input type="text" id="f-telefone" placeholder="(21) 99999-9999"></div>
+            <div class="form-group"><label>WhatsApp</label><input type="text" id="f-whatsapp" placeholder="5521999999999 (com DDI)"></div>
+            <div class="form-group"><label>E-mail</label><input type="email" id="f-email" placeholder="contato@empresa.com"></div>
+            <div class="form-group"><label>Ref. Cliente</label><input type="text" id="f-ref" placeholder="Referência do cliente"></div>
+            <div class="form-group full"><label>Cooperação Tecnológica</label><input type="text" id="f-coop" placeholder="Ex: Siemens, ABB..."></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Identificação da Proposta</div>
+          <div class="form-grid-3">
+            <div class="form-group"><label>Nº Controle</label><input type="text" id="f-ncontrole"></div>
+            <div class="form-group"><label>Proposta Nº</label><input type="text" id="f-prop"></div>
+            <div class="form-group"><label>Revisão</label><input type="text" id="f-rev" value="0"></div>
+          </div>
+        </div>
+        <div class="flex justify-end"><button class="btn btn-primary" onclick="UI.goStep(2)">Próximo: Itens →</button></div>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="step-panel-2" class="step-panel" style="display:none">
+        <div class="card">
+          <div class="card-title">Itens da Proposta</div>
+          <div class="flex gap-2" style="margin-bottom:14px">
+            <input type="text" id="omie-item-search" placeholder="Buscar item no Omie por descricao ou codigo...">
+            <button class="btn btn-primary" onclick="Omie.searchItem()">Buscar no Omie</button>
+          </div>
+          <div id="omie-item-results" class="mt-2"></div>
+          <table class="items-table"><thead><tr><th>#</th><th>Tag / Modelo</th><th>Descrição</th><th>Qtd.</th><th>Preço Unit. (R$)</th><th>Total (R$)</th><th></th></tr></thead>
+          <tbody id="items-body"></tbody></table>
+          <button class="add-item-btn" onclick="Items.add()">+ Adicionar Item</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Alternativas / Opcionais <span class="badge badge-alt">Opcional</span></div>
+          <table class="items-table"><thead><tr><th>#</th><th>Tag / Modelo</th><th>Descrição</th><th>Qtd.</th><th>Preço Unit. (R$)</th><th>Total (R$)</th><th></th></tr></thead>
+          <tbody id="alts-body"></tbody></table>
+          <button class="add-item-btn" onclick="Items.addAlt()">+ Adicionar Alternativa</button>
+        </div>
+        <div class="card">
+          <div class="totals-box">
+            <div class="total-row"><span class="tlabel">Subtotal Itens</span><span id="subtotal">R$ 0,00</span></div>
+            <div class="total-row"><span class="tlabel">BDI Aplicado</span><span id="bdi-applied" class="accent">×1,000</span></div>
+            <div class="total-row main"><span class="tlabel">VALOR TOTAL</span><span class="tvalue" id="total-final">R$ 0,00</span></div>
+          </div>
+        </div>
+        <div class="flex justify-between"><button class="btn btn-outline" onclick="UI.goStep(1)">← Voltar</button><button class="btn btn-primary" onclick="UI.goStep(3)">Próximo: Condições →</button></div>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="step-panel-3" class="step-panel" style="display:none">
+        <div class="card"><div class="card-title">Prazo de Entrega</div><div id="tpl-prazo" class="template-chips"></div><textarea id="f-prazo" placeholder="Ex: 90 dias corridos após aprovação..."></textarea></div>
+        <div class="card"><div class="card-title">Condições de Pagamento</div><div id="tpl-pagamento" class="template-chips"></div><textarea id="f-pagamento" placeholder="Ex: 50% na emissão..."></textarea></div>
+        <div class="form-grid mb-3">
+          <div class="card m0"><div class="card-title">Impostos</div><div id="tpl-impostos" class="template-chips"></div><textarea id="f-impostos" placeholder="ICMS, IPI..."></textarea></div>
+          <div class="card m0"><div class="card-title">Local de Entrega</div><div id="tpl-local" class="template-chips"></div><textarea id="f-local" placeholder="Ex: CIF – Rio de Janeiro"></textarea></div>
+        </div>
+        <div class="form-grid mb-3">
+          <div class="card m0"><div class="card-title">Validade</div><div id="tpl-validade" class="template-chips"></div><input type="text" id="f-validade" placeholder="30 dias corridos"></div>
+          <div class="card m0"><div class="card-title">Condições Gerais</div><div id="tpl-cond_gerais" class="template-chips"></div><textarea id="f-cond-gerais" placeholder="Garantia, responsabilidades..."></textarea></div>
+        </div>
+        <div class="card"><div class="card-title">Observações</div><textarea id="f-obs" placeholder="Observações adicionais..."></textarea></div>
+        <div class="flex justify-between"><button class="btn btn-outline" onclick="UI.goStep(2)">← Voltar</button><button class="btn btn-primary" onclick="UI.goStep(4)">Próximo: Revisão →</button></div>
+      </div>
+
+      <!-- Step 4 -->
+      <div id="step-panel-4" class="step-panel" style="display:none">
+        <div class="card card-highlight">
+          <div class="flex align-center gap-3">
+            <div style="font-size:32px">✅</div>
+            <div><div class="highlight-title">Proposta pronta para emissão</div><div class="text-muted mt-1">Revise o resumo e salve ou gere o PDF</div></div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="card m0"><div class="card-title">Cliente</div><div id="rev-cliente" class="rev-big"></div><div id="rev-email" class="text-muted mt-1"></div></div>
+          <div class="card m0"><div class="card-title">Valor Total</div><div id="rev-total" class="rev-value"></div><div id="rev-itens" class="text-muted mt-1"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Resumo dos Itens</div>
+          <div id="rev-items-list"></div>
+        </div>
+        <div class="flex gap-2 justify-end mt-3">
+          <button class="btn btn-outline" onclick="UI.goStep(3)">← Voltar</button>
+          <button class="btn btn-outline" onclick="Proposals.saveDraft()">💾 Salvar Rascunho</button>
+          <button class="btn btn-outline" onclick="PDF.preview()">👁 Pré-visualizar</button>
+          <button class="btn btn-primary" onclick="Proposals.save()">✓ Salvar Proposta</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BDI ══ -->
+    <div id="page-bdi" class="page">
+      <div class="page-header">
+        <div><div class="page-title">BDI / Multiplicador</div><div class="page-subtitle">Parâmetros de formação de preço</div></div>
+        <button class="btn btn-primary" onclick="BDI.save()">💾 Salvar</button>
+      </div>
+      <div class="bdi-summary" id="bdi-summary"></div>
+      <div class="bdi-grid" id="bdi-grid"></div>
+    </div>
+
+    <!-- ══ TEMPLATES ══ -->
+    <div id="page-templates" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Templates de Condições</div><div class="page-subtitle">Textos padrão para agilizar o preenchimento</div></div>
+        <button class="btn btn-primary" onclick="Templates.openModal()">+ Novo Template</button>
+      </div>
+      <div id="templates-list"></div>
+    </div>
+
+    <!-- ══ CONFIG ══ -->
+    <div id="page-config" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Configurações</div><div class="page-subtitle">Omie API e dados da empresa</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Credenciais Omie</div>
+        <div class="form-grid">
+          <div class="form-group"><label>App Key</label><input type="text" id="cfg-appkey" placeholder="Sua App Key"></div>
+          <div class="form-group"><label>App Secret</label><input type="password" id="cfg-appsecret" placeholder="Seu App Secret"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="flex gap-2 align-center">
+          <button class="btn btn-primary" onclick="Config.saveOmie()">💾 Salvar</button>
+          <button class="btn btn-outline" onclick="Config.testOmie()">🔌 Testar Conexão</button>
+          <span id="cfg-test-result" class="text-muted"></span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Dados da Empresa</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nome da Empresa</label><input type="text" id="cfg-empresa"></div>
+          <div class="form-group"><label>CNPJ</label><input type="text" id="cfg-cnpj-empresa"></div>
+          <div class="form-group full"><label>Endereço</label><input type="text" id="cfg-endereco-empresa"></div>
+          <div class="form-group"><label>Telefone</label><input type="text" id="cfg-tel-empresa"></div>
+          <div class="form-group"><label>E-mail</label><input type="email" id="cfg-email-empresa"></div>
+        </div>
+        <div class="divider"></div>
+        <button class="btn btn-primary" onclick="Config.saveCompany()">💾 Salvar Empresa</button>
+      </div>
+    </div>
+
+    <!-- ══ EQUIPE ══ -->
+    <div id="page-equipe" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Equipe</div><div class="page-subtitle">Gerencie os usuários do sistema</div></div>
+      </div>
+      <div id="team-list"></div>
+    </div>
+
+    <div id="page-usuarios" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Usuários</div><div class="page-subtitle">Lista de todos os cadastrados</div></div>
+      </div>
+      <div id="users-list"></div>
+    </div>
+
+    <div id="page-perfil" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Meu Perfil</div><div class="page-subtitle">Atualize seu nome, foto e senha</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Dados do Usuário</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nome</label><input type="text" id="profile-name" placeholder="Seu nome"></div>
+          <div class="form-group"><label>E-mail</label><input type="email" id="profile-email" disabled></div>
+          <div class="form-group full">
+            <label>Foto do perfil</label>
+            <div class="profile-upload-row">
+              <div class="profile-avatar-preview" id="profile-avatar-preview">?</div>
+              <div class="profile-upload-fields">
+                <input type="file" id="profile-avatar-file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="ProfilePage.onAvatarSelected(event)">
+                <input type="text" id="profile-avatar" placeholder="Ou informe a URL da imagem">
+                <small class="text-muted">Envie uma imagem ou informe uma URL pública.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <button class="btn btn-primary" onclick="ProfilePage.save()">Salvar Perfil</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Trocar Senha</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nova senha</label><input type="password" id="profile-pass" placeholder="Mínimo 6 caracteres"></div>
+          <div class="form-group"><label>Confirmar senha</label><input type="password" id="profile-pass-confirm" placeholder="Repita a senha"></div>
+        </div>
+        <div class="divider"></div>
+        <button class="btn btn-outline" onclick="ProfilePage.changePassword()">Atualizar Senha</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- PDF PREVIEW OVERLAY -->
+<div id="pdf-preview" class="pdf-overlay">
+  <div class="pdf-actions">
+    <button class="btn btn-outline btn-sm" onclick="PDF.close()">✕ Fechar</button>
+    <button class="btn btn-outline btn-sm" onclick="PDF.download()">⬇ Baixar PDF</button>
+    <button class="btn btn-outline btn-sm" onclick="Send.email()">📧 E-mail</button>
+    <button class="btn btn-primary btn-sm" onclick="Send.whatsapp()">💬 WhatsApp</button>
+  </div>
+  <div id="pdf-doc" class="pdf-document"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title"></div>
+    <div id="modal-body"></div>
+    <div class="flex gap-2 justify-end mt-3">
+      <button class="btn btn-outline" onclick="UI.closeModal()">Cancelar</button>
+      <button class="btn btn-primary" id="modal-confirm">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/items.js"></script>
+<script src="js/bdi.js"></script>
+<script src="js/omie.js"></script>
+<script src="js/proposals.js"></script>
+<script src="js/send.js"></script>
+<script src="js/pdf.js"></script>
+<script src="js/templates.js"></script>
+<script src="js/config-page.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
