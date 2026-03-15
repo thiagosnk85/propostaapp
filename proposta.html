@@ -87,16 +87,32 @@ function closeModal(type){document.getElementById('modal-'+type).classList.remov
 let _proposal = null;
 let _token = null;
 
+async function fetchPublicProposal(id, token){
+  if (!token) {
+    return { payload: null, mode: 'legacy-missing-token', error: null };
+  }
+
+  const { data, error } = await db.rpc('get_public_proposal', { p_id: id, p_token: token });
+  if (!error && data?.proposal) return { payload: data, mode: 'token' };
+
+  return { payload: null, mode: 'token', error };
+}
+
 async function load(){
   const params = new URLSearchParams(location.search);
   const id = params.get('id');
   _token = params.get('token');
-  if(!id || !_token){
+  if(!id){
     document.getElementById('proposal-content').innerHTML='<div class="loading">Link invalido.</div>';
     return;
   }
 
-  const { data: payload, error } = await db.rpc('get_public_proposal', { p_id: id, p_token: _token });
+  const { payload, mode, error } = await fetchPublicProposal(id, _token);
+  if(mode === 'legacy-missing-token'){
+    document.getElementById('proposal-content').innerHTML='<div class="loading">Este link publico esta desatualizado. Gere um novo link da proposta com token.</div>';
+    return;
+  }
+
   if(error || !payload?.proposal){
     document.getElementById('proposal-content').innerHTML='<div class="loading">Proposta nao encontrada.</div>';
     return;

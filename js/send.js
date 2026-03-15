@@ -5,8 +5,10 @@
 const Send = {
   getPublicLinks(id) {
     const token = PDF._currentProposal?.public_token || Proposals._publicToken || '';
+    if (!token) return null;
+    const query = `id=${encodeURIComponent(id)}&token=${encodeURIComponent(token)}`;
     return {
-      view: `${APP_URL}/proposta.html?id=${encodeURIComponent(id)}&token=${encodeURIComponent(token)}`,
+      view: `${APP_URL}/proposta.html?${query}`,
     };
   },
 
@@ -88,7 +90,12 @@ ${comp}`
   openApprovalLink() {
     const id = PDF._currentProposal?.id || Proposals._editId;
     if (!id) { UI.toast('Salve a proposta primeiro.', 'error'); return; }
-    const url = this.getPublicLinks(id).view;
+    const links = this.getPublicLinks(id);
+    if (!links) {
+      UI.toast('Esta proposta ainda nao possui token publico. Aplique as migracoes SQL e salve a proposta novamente.', 'error');
+      return;
+    }
+    const url = links.view;
     window.open(url, '_blank');
   },
 

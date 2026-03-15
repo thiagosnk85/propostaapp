@@ -42,8 +42,10 @@ const PDF = {
     const items = p._items || [];
     const alts = p._alts || [];
     const total = p.total || items.reduce((s, it) => s + (it.quantidade || it.qtd || 1) * (it.preco_unit || it.unit || 0), 0) * (p.bdi_mult || 1);
-    const publicLink = p.id && p.public_token
-      ? `${APP_URL}/proposta.html?id=${encodeURIComponent(p.id)}&token=${encodeURIComponent(p.public_token)}`
+    const publicLink = p.id
+      ? `${APP_URL}/proposta.html?${p.public_token
+          ? `id=${encodeURIComponent(p.id)}&token=${encodeURIComponent(p.public_token)}`
+          : `id=${encodeURIComponent(p.id)}`}`
       : '';
 
     const renderRows = (rows) => rows.map((it, i) => `
