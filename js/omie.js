@@ -1,32 +1,43 @@
 // ============================================================
-// js/omie.js  ·  Integracao Omie ERP
+// js/omie.js · Integracao Omie ERP via backend Vercel
 // ============================================================
 
 const Omie = {
-  _creds() {
-    return {
-      appkey: localStorage.getItem('omie_appkey') || '',
-      appsecret: localStorage.getItem('omie_appsecret') || '',
-    };
+  async _accessToken() {
+    const { data, error } = await db.auth.getSession();
+    if (error) {
+      UI.toast('Erro ao obter sessao do usuario.', 'error');
+      return '';
+    }
+    return data.session?.access_token || '';
   },
 
   async _call(endpoint, call, param) {
-    const { appkey, appsecret } = this._creds();
-    if (!appkey || !appsecret) {
-      UI.toast('Configure as credenciais do Omie em Configuracoes.', 'error');
+    const token = await this._accessToken();
+    if (!token) {
+      UI.toast('Faca login novamente para usar a integracao Omie.', 'error');
       return null;
     }
 
     try {
-      const res = await fetch(`https://app.omie.com.br/api/v1/${endpoint}/`, {
+      const res = await fetch(`${window.location.origin}/api/omie`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ call, app_key: appkey, app_secret: appsecret, param: [param] }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ endpoint, call, param }),
       });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return await res.json();
+
+      const payload = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(payload?.error || `HTTP ${res.status}`);
+      }
+
+      return payload;
     } catch (e) {
       UI.toast('Erro Omie: ' + e.message, 'error');
+      setOmieStatus(false);
       return null;
     }
   },
@@ -45,7 +56,11 @@ const Omie = {
       clientesFiltro: { razao_social: q },
     });
 
-    if (!data) { el.innerHTML = ''; return; }
+    if (!data) {
+      el.innerHTML = '';
+      return;
+    }
+
     const lista = data.clientes_cadastro || [];
     if (!lista.length) {
       el.innerHTML = '<div class="text-muted" style="padding:8px">Nenhum cliente encontrado.</div>';
@@ -54,8 +69,8 @@ const Omie = {
 
     el.innerHTML = lista.map((c) => `
       <div class="omie-result-item" onclick='Omie.select(${JSON.stringify(c).replace(/'/g, '&#39;')})'>
-        <div class="omie-result-name">${c.razao_social || c.nome_fantasia || '—'}</div>
-        <div class="omie-result-meta">${c.cnpj_cpf || ''} · ${c.cidade || ''} / ${c.estado || ''}</div>
+        <div class="omie-result-name">${escHtml(c.razao_social || c.nome_fantasia || '—')}</div>
+        <div class="omie-result-meta">${escHtml(c.cnpj_cpf || '')} · ${escHtml(c.cidade || '')} / ${escHtml(c.estado || '')}</div>
       </div>`).join('');
 
     setOmieStatus(true);
@@ -76,7 +91,11 @@ const Omie = {
       produto_servico: q,
     });
 
-    if (!data) { el.innerHTML = ''; return; }
+    if (!data) {
+      el.innerHTML = '';
+      return;
+    }
+
     const lista = data.produto_servico_cadastro || data.produtos || [];
     if (!lista.length) {
       el.innerHTML = '<div class="text-muted" style="padding:8px">Nenhum item encontrado.</div>';
@@ -85,8 +104,8 @@ const Omie = {
 
     el.innerHTML = lista.map((item) => `
       <div class="omie-result-item" onclick='Omie.selectItem(${JSON.stringify(item).replace(/'/g, '&#39;')})'>
-        <div class="omie-result-name">${item.codigo || item.codigo_produto || item.codigo_item || 'Sem codigo'}</div>
-        <div class="omie-result-meta">${item.descricao || item.descricao_produto || item.nome || 'Sem descricao'} · ${fmtBRL(parseFloat(item.valor_unitario || item.preco_unitario || item.preco_venda || 0) || 0)}</div>
+        <div class="omie-result-name">${escHtml(item.codigo || item.codigo_produto || item.codigo_item || 'Sem codigo')}</div>
+        <div class="omie-result-meta">${escHtml(item.descricao || item.descricao_produto || item.nome || 'Sem descricao')} · ${fmtBRL(parseFloat(item.valor_unitario || item.preco_unitario || item.preco_venda || 0) || 0)}</div>
       </div>`).join('');
 
     setOmieStatus(true);
@@ -118,15 +137,13 @@ const Omie = {
     UI.toast('Item selecionado', 'success');
   },
 
-  async test(appkey, appsecret) {
-    localStorage.setItem('omie_appkey', appkey);
-    localStorage.setItem('omie_appsecret', appsecret);
+  async test() {
     const data = await this._call('geral/clientes', 'ListarClientes', {
       pagina: 1,
       registros_por_pagina: 1,
       apenas_importado_api: 'N',
     });
-    const ok = data && !data.faultstring;
+    const ok = !!(data && !data.faultstring && !data.codigo_status);
     setOmieStatus(ok);
     return ok;
   },

@@ -11,13 +11,7 @@ const App = {
     await BDI.load().catch(error => showDbError('Erro ao carregar BDI', error));
 
     // Check Omie connection in background
-    const key    = localStorage.getItem('omie_appkey');
-    const secret = localStorage.getItem('omie_appsecret');
-    if (key && secret) {
-      Omie.test(key, secret).then(ok => setOmieStatus(ok));
-    } else {
-      setOmieStatus(false);
-    }
+    Omie.test().catch(() => setOmieStatus(false));
 
     // Load proposals list
     await Proposals.load();

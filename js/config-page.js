@@ -2,8 +2,18 @@ const Config = {
   _company: null,
 
   async load() {
-    document.getElementById('cfg-appkey').value = localStorage.getItem('omie_appkey') || '';
-    document.getElementById('cfg-appsecret').value = localStorage.getItem('omie_appsecret') || '';
+    const omieKeyEl = document.getElementById('cfg-appkey');
+    const omieSecretEl = document.getElementById('cfg-appsecret');
+    if (omieKeyEl) {
+      omieKeyEl.value = '';
+      omieKeyEl.placeholder = 'Configurado no Vercel Environment Variables';
+      omieKeyEl.disabled = true;
+    }
+    if (omieSecretEl) {
+      omieSecretEl.value = '';
+      omieSecretEl.placeholder = 'Configurado no Vercel Environment Variables';
+      omieSecretEl.disabled = true;
+    }
 
     const cached = Cache.get('company');
     if (cached) {
@@ -23,22 +33,16 @@ const Config = {
   },
 
   async saveOmie() {
-    const key = document.getElementById('cfg-appkey').value.trim();
-    const secret = document.getElementById('cfg-appsecret').value.trim();
-    localStorage.setItem('omie_appkey', key);
-    localStorage.setItem('omie_appsecret', secret);
-    UI.toast('Credenciais Omie salvas localmente.', 'success');
+    UI.toast('As credenciais Omie agora devem ser configuradas no Vercel, nao no navegador.', 'info');
   },
 
   async testOmie() {
-    const key = document.getElementById('cfg-appkey').value.trim();
-    const secret = document.getElementById('cfg-appsecret').value.trim();
     const resEl = document.getElementById('cfg-test-result');
     resEl.textContent = 'Testando...';
-    const ok = await Omie.test(key, secret);
+    const ok = await Omie.test();
     resEl.innerHTML = ok
       ? '<span style="color:var(--success)">Conectado com sucesso.</span>'
-      : '<span style="color:var(--danger)">Falha. Verifique as credenciais.</span>';
+      : '<span style="color:var(--danger)">Falha. Verifique as variaveis do Vercel e a sessao do usuario.</span>';
   },
 
   async saveCompany() {
